@@ -225,15 +225,6 @@ explore: claim_control {
         and ${v_claim_detail_claimant.claimant_num} = ${dt_coverage_financials.claimant_num};;
     }
 
-#     join: dt_claim_feature_activity {
-#       view_label: "Feature Financials"
-#       type: left_outer
-#       relationship: one_to_many
-#       sql_on: ${dt_coverage_financials.claimcontrol_id} = ${dt_claim_feature_activity.claimcontrol_id}
-#         and ${dt_coverage_financials.claimant_num} = ${dt_claim_feature_activity.claimant_num}
-#         and ${dt_coverage_financials_bi.claimfeature_num} = ${dt_claim_feature_activity.claimfeature_num};;
-#     }
-
     join: dt_coverage_financials_pd {
       view_label: "Coverage Financials"
       type: left_outer
@@ -360,6 +351,15 @@ explore: claim_control {
       sql_on: ${v_claim_detail_claimant.claimcontrol_id} = ${v_claim_detail_feature.claimcontrol_id}
               AND ${v_claim_detail_claimant.claimant_num} = ${v_claim_detail_feature.claimant_num}
               ;;
+    }
+
+    #SH 2021-04-13  TT 315292  Get feature status with As-Of-Date.
+    join: dt_claim_feature_as_of_date {
+      view_label: "Claim Feature"
+      type: left_outer
+      relationship: one_to_many
+      sql_on: ${v_claim_detail_feature.claimcontrol_id} = ${dt_claim_feature_as_of_date.claimcontrol_id}
+        and ${v_claim_detail_feature.claimant_num} = ${dt_claim_feature_as_of_date.claimant_num} ;;
     }
 
     ##VERSION BEFORE MAKING CHANGES 2020-01-29
