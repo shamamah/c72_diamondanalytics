@@ -132,6 +132,7 @@ view: dt_claim_feature_as_of_date {
   }
 
   dimension_group: reported_date {
+    hidden: yes
     type: time
     timeframes: [date,month,year]
     sql: ${TABLE}.reported_date ;;
@@ -217,9 +218,8 @@ view: dt_claim_feature_as_of_date {
   }
 
   dimension: in_litigation {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.in_litigation ;;
+    type: yesno
+    sql: ${TABLE}.in_litigation = 1 ;;
   }
 
   dimension: in_suit {
@@ -271,13 +271,13 @@ view: dt_claim_feature_as_of_date {
   }
 
   dimension: reopened {
-    label: "Re-opened"
+    hidden: yes
     type: string
     sql: case when ${TABLE}.reopened = 'true' then 'Yes' else 'No' end ;;
   }
 
   dimension_group: reopened_date {
-    label: "Re-open"
+    hidden: yes
     type: time
     timeframes: [date,month,year]
     sql: ${TABLE}.reopened_date ;;
@@ -509,7 +509,6 @@ view: dt_claim_feature_as_of_date {
       # first_indemnity_reserve_date_time,
       # first_indemnity_payment_set,
       # first_indemnity_payment_num,
-      # reported_date_time,
       # claimreportedby_id,
       # claimreportedbymethod_id,
       # dscr,

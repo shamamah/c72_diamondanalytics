@@ -359,7 +359,8 @@ explore: claim_control {
       type: left_outer
       relationship: one_to_many
       sql_on: ${v_claim_detail_feature.claimcontrol_id} = ${dt_claim_feature_as_of_date.claimcontrol_id}
-        and ${v_claim_detail_feature.claimant_num} = ${dt_claim_feature_as_of_date.claimant_num} ;;
+        and ${v_claim_detail_feature.claimant_num} = ${dt_claim_feature_as_of_date.claimant_num}
+        and ${v_claim_detail_feature.claimfeature_num} = ${dt_claim_feature_as_of_date.claimfeature_num} ;;
     }
 
     ##VERSION BEFORE MAKING CHANGES 2020-01-29

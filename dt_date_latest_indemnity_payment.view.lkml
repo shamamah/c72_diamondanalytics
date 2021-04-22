@@ -5,13 +5,22 @@ view: dt_date_latest_indemnity_payment {
               ,v_claim_detail_claimant.claimant_num as claimant_num
               ,v_claim_detail_feature.claimfeature_num as claimfeature_num
               --SH 2021-04-01 - TT 315226 Added added_date to measure days open to lastest indemnity date
-              ,claim_control.added_date as added_date
+
+              --SH 2021-04-21 - TT 315292 Replaced logic from TT 315226 since it's creating duplicates by grouping added_date
+              --,claim_control.added_date as added_date
+              ,min(claim_feature.added_date) as added_date
+
               ,max(v_claim_detail_transaction.check_date) as max_check_date
 
       FROM dbo.ClaimControl  AS claim_control
       INNER JOIN dbo.vClaimDetail_Claimant  AS v_claim_detail_claimant ON claim_control.claimcontrol_id = v_claim_detail_claimant.claimcontrol_id
       LEFT JOIN dbo.vClaimDetail_Feature  AS v_claim_detail_feature ON v_claim_detail_claimant.claimcontrol_id = v_claim_detail_feature.claimcontrol_id
                     AND v_claim_detail_claimant.claimant_num = v_claim_detail_feature.claimant_num
+
+      --SH 2021-04-21 - TT 315292 joining to table ClaimFeature to get the added_date (not in the view)
+      LEFT JOIN dbo.ClaimFeature  AS claim_feature ON v_claim_detail_feature.claimcontrol_id = claim_feature.claimcontrol_id
+                    AND v_claim_detail_feature.claimant_num = claim_feature.claimant_num
+          AND v_claim_detail_feature.claimfeature_num = claim_feature.claimfeature_num
 
       LEFT JOIN dbo.vClaimDetail_Transaction  AS v_claim_detail_transaction ON v_claim_detail_feature.claimcontrol_id = v_claim_detail_transaction.claimcontrol_id
                     AND v_claim_detail_feature.claimant_num = v_claim_detail_transaction.claimant_num
