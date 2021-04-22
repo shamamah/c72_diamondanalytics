@@ -269,8 +269,8 @@ view: dt_coverage_financials {
       claim_control.reported_date_date,
       dt_claim_days_open.days_open,
       dt_claim_close_date.claim_close_date_date,
-      dt_claim_feature_activity.feature_open_date_date,
-      dt_claim_feature_activity.feature_close_date_date,
+      #dt_claim_feature_activity.feature_open_date_date,
+      #dt_claim_feature_activity.feature_close_date_date,
       dt_claim_inside_adjuster.initials,
     ]
   }

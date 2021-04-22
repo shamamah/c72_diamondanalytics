@@ -566,7 +566,14 @@ view: dt_claim_feature_as_of_date {
       # claimfeatureclosereason_id,
       # claimsubropotentialtype_id,
       # is_early_settlement_opportunity,
-      current_feature_status
+      current_feature_status,
+      dt_claim_feature_activity.open_date_date,
+      dt_claim_feature_activity.close_date_date,
+      dt_claim_feature_activity.first_open_date_date,
+      dt_claim_feature_activity.latest_close_date_date,
+      dt_claim_feature_activity.num,
+      dt_claim_feature_activity.days_open,
+      dt_claim_feature_activity.days_open_cumulative
     ]
   }
 }

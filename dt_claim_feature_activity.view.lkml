@@ -1,29 +1,60 @@
 view: dt_claim_feature_activity {
   derived_table: {
-    sql: SELECT O.claimcontrol_id, O.claimant_num, ROW_NUMBER() OVER (PARTITION BY O.claimcontrol_id, O.claimant_num ORDER BY O.claimfeature_num) AS claimfeature_num, O.added_date AS feature_open_date, C.added_date AS feature_close_date, C.dscr as feature_close_reason
+    sql:
+
+      SELECT O.claimcontrol_id, O.claimant_num, O.claimfeature_num, ROW_NUMBER() OVER (PARTITION BY O.claimcontrol_id, O.claimant_num, O.claimfeature_num ORDER BY O.num) AS num,
+        O.added_date AS open_date, C.added_date AS close_date, first_open.first_open_date, lastest_closed.latest_close_date,
+        DATEDIFF(dd,O.added_date,C.added_date) AS days_open, DATEDIFF(dd,first_open.first_open_date,lastest_closed.latest_close_date) AS days_open_cumulative
       FROM
-      (
-        SELECT claimcontrol_id, claimant_num, claimfeature_num, added_date, ROW_NUMBER() OVER (PARTITION BY claimcontrol_id, claimant_num ORDER BY claimfeature_num) AS RN
-        FROM dbo.ClaimFeatureActivity
-        WHERE claimactivitycode_id = 1
-          --AND {% condition dt_claim_transactions_as_of.as_of_date %} added_date {% endcondition %}
-      ) O
-      LEFT OUTER JOIN
-      (
-        SELECT claimcontrol_id, claimant_num, claimfeature_num, added_date, dscr, ROW_NUMBER() OVER (PARTITION BY claimcontrol_id, claimant_num ORDER BY claimfeature_num) AS RN
-        FROM dbo.ClaimFeatureActivity
-        WHERE claimactivitycode_id = 2
-      ) C
-        ON C.claimcontrol_id = O.claimcontrol_id
-          AND C.RN = O.RN
- ;;
+          (
+            SELECT claimcontrol_id, claimant_num, claimfeature_num, num, added_date, ROW_NUMBER() OVER (PARTITION BY claimcontrol_id, claimant_num, claimfeature_num ORDER BY num) AS RN
+            FROM dbo.ClaimFeatureActivity
+            WHERE claimactivitycode_id = 1
+              AND {% condition dt_claim_feature_as_of_date.as_of_date %} added_date {% endcondition %}
+          ) O
+
+        LEFT OUTER JOIN
+          (
+            SELECT claimcontrol_id, claimant_num, claimfeature_num, num, added_date, ROW_NUMBER() OVER (PARTITION BY claimcontrol_id, claimant_num, claimfeature_num ORDER BY num) AS RN
+            FROM dbo.ClaimFeatureActivity
+            WHERE claimactivitycode_id = 2
+          ) C
+          ON C.claimcontrol_id = O.claimcontrol_id
+            AND C.claimant_num = O.claimant_num
+            AND C.claimfeature_num = O.claimfeature_num
+            AND C.RN = O.RN
+
+        LEFT OUTER JOIN
+          (
+            SELECT claimcontrol_id, claimant_num, claimfeature_num, min(added_date) as first_open_date --, ROW_NUMBER() OVER (PARTITION BY claimcontrol_id, claimant_num, claimfeature_num ORDER BY num) AS RN
+            FROM dbo.ClaimFeatureActivity
+            WHERE claimactivitycode_id = 1
+            GROUP BY claimcontrol_id, claimant_num, claimfeature_num
+          ) first_open
+          ON first_open.claimcontrol_id = O.claimcontrol_id
+            AND first_open.claimant_num = O.claimant_num
+            AND first_open.claimfeature_num = O.claimfeature_num
+            --AND first_open.RN = O.RN
+
+
+        LEFT OUTER JOIN
+          (
+            SELECT claimcontrol_id, claimant_num, claimfeature_num, max(added_date) as latest_close_date
+            FROM dbo.ClaimFeatureActivity
+            WHERE claimactivitycode_id = 2
+            GROUP BY claimcontrol_id, claimant_num, claimfeature_num
+          ) lastest_closed
+          ON lastest_closed.claimcontrol_id = O.claimcontrol_id
+            AND lastest_closed.claimant_num = O.claimant_num
+            AND lastest_closed.claimfeature_num = O.claimfeature_num
+       ;;
   }
 
   dimension: compound_primary_key {
     type: string
     primary_key: yes
     hidden: yes
-    sql: CONCAT(${claimcontrol_id},${claimant_num},${claimfeature_num}) ;;
+    sql: CONCAT(${claimcontrol_id},${claimant_num},${claimfeature_num},${num}) ;;
   }
 
   dimension: claimcontrol_id {
@@ -44,24 +75,79 @@ view: dt_claim_feature_activity {
     sql: ${TABLE}.claimfeature_num ;;
   }
 
-  dimension_group: feature_open_date {
-    label: "Feature Open"
-    type: time
-    timeframes: [date]
-    sql: ${TABLE}.feature_open_date ;;
+  dimension: num {
+    label: "Open/Reopen Number"
+    type: number
+    sql: ${TABLE}.num ;;
   }
 
-  dimension_group: feature_close_date {
-    label: "Feature Close"
+  dimension_group: open_date {
+    label: "Opened"
     type: time
-    timeframes: [date]
-    sql: ${TABLE}.feature_close_date ;;
+    timeframes: [date,month,year]
+    sql: ${TABLE}.open_date ;;
   }
 
-  dimension: feature_close_reason {
+  dimension_group: close_date {
+    label: "Closed"
+    type: time
+    timeframes: [date,month,year]
+    sql: ${TABLE}.close_date ;;
+  }
+
+  dimension_group: first_open_date {
+    label: "First Opened"
+    type: time
+    timeframes: [date,month,year]
+    sql: ${TABLE}.first_open_date ;;
+  }
+
+  dimension_group: latest_close_date {
+    label: "Latest Close"
+    type: time
+    timeframes: [date,month,year]
+    sql: ${TABLE}.latest_close_date ;;
+  }
+
+  dimension: days_open {
+    label: "Days Open to Close"
+    type: number
+    sql: ${TABLE}.days_open ;;
+  }
+
+  dimension: dim_days_open_cumulative {
     hidden: yes
-    type: string
-    sql: ${TABLE}.feature_close_reason ;;
+    label: "Days First Open to Last Close"
+    type: number
+    sql: ${TABLE}.days_open_cumulative ;;
   }
 
+  measure: count {
+    hidden: yes
+    type: count
+    drill_fields: [detail*]
+  }
+
+  measure: days_open_cumulative {
+    label: "Average Days First Open to Last Close"
+    type: average
+    sql: ${dim_days_open_cumulative} ;;
+    value_format_name: decimal_0
+    drill_fields: [detail*]
+  }
+
+  set: detail {
+    fields: [
+      claimcontrol_id,
+      claimant_num,
+      claimfeature_num,
+      num,
+      open_date_date,
+      close_date_date,
+      first_open_date_date,
+      latest_close_date_date,
+      days_open,
+      days_open_cumulative
+    ]
+  }
 }
