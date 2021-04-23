@@ -30,6 +30,7 @@ view: dt_claim_feature_as_of_date {
   }
 
   measure: count {
+    hidden: yes
     type: count
     drill_fields: [detail*]
   }

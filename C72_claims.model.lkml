@@ -373,289 +373,294 @@ explore: claim_control {
         and ${v_claim_detail_feature.claimfeature_num} = ${dt_claim_feature_activity.claimfeature_num} ;;
     }
 
-    ##VERSION BEFORE MAKING CHANGES 2020-01-29
-    # SH 2019-12-03 Moved from above, and added join to v_claim_detail_feature
-    #join: dt_claim_coverage {
-    #  view_label: "Claim Coverage"
-    # SH 2020-01-07 Modified join type from "left outer" to "inner"Moved from above, and added join to v_claim_detail_feature
-    ##type: left_outer
-    #  type: inner
-    ## SH 2019-12-03 Added the second join "AND ${v_claim_detail_feature.claimcoverage_num} = ${dt_claim_coverage.claimcoverage_num}"
-    #  sql_on: ${claim_control.claimcontrol_id} = ${dt_claim_coverage.claimcontrol_id}
-    #          AND ${v_claim_detail_feature.claimcoverage_num} = ${dt_claim_coverage.claimcoverage_num}
-    #          ;;
-    #  relationship: one_to_many
-    #}
+    # Added on 2019-09-18  TT 289862
+    # SH 2020-06-18 - TT 302617 Added join on claimant_num and claimfeature_num
+    #SH 2021-04-13  TT 315292  Moved to follow feature-level views, and modified sql_on conditions
+    join: dt_date_latest_indemnity_payment {
+      view_label: "Checks & Transactions"
+      type: left_outer
+      # sql_on: ${claim_control.claimcontrol_id} = ${dt_date_latest_indemnity_payment.claimcontrol_id}
+      #       and ${v_claim_detail_claimant.claimant_num} = ${dt_date_latest_indemnity_payment.claimant_num}
+      #       and ${v_claim_detail_feature.claimfeature_num} = ${dt_date_latest_indemnity_payment.claimfeature_num} ;;
+      sql_on: ${dt_claim_feature_activity.claimcontrol_id} = ${dt_date_latest_indemnity_payment.claimcontrol_id}
+              and ${dt_claim_feature_activity.claimant_num} = ${dt_date_latest_indemnity_payment.claimant_num}
+              and ${dt_claim_feature_activity.claimfeature_num} = ${dt_date_latest_indemnity_payment.claimfeature_num} ;;
 
-    # SH 2019-12-03 Moved from above, and added join to v_claim_detail_feature
-    join: dt_claim_coverage {
-      view_label: "Claim Coverage"
+        relationship: one_to_one
+      }
+
+      ##VERSION BEFORE MAKING CHANGES 2020-01-29
+      # SH 2019-12-03 Moved from above, and added join to v_claim_detail_feature
+      #join: dt_claim_coverage {
+      #  view_label: "Claim Coverage"
       # SH 2020-01-07 Modified join type from "left outer" to "inner"Moved from above, and added join to v_claim_detail_feature
-      #type: left_outer
-      type: inner
-      # SH 2019-12-03 Added the second join "AND ${v_claim_detail_feature.claimcoverage_num} = ${dt_claim_coverage.claimcoverage_num}"
-      sql_on: ${claim_control.claimcontrol_id} = ${dt_claim_coverage.claimcontrol_id}
+      ##type: left_outer
+      #  type: inner
+      ## SH 2019-12-03 Added the second join "AND ${v_claim_detail_feature.claimcoverage_num} = ${dt_claim_coverage.claimcoverage_num}"
+      #  sql_on: ${claim_control.claimcontrol_id} = ${dt_claim_coverage.claimcontrol_id}
+      #          AND ${v_claim_detail_feature.claimcoverage_num} = ${dt_claim_coverage.claimcoverage_num}
+      #          ;;
+      #  relationship: one_to_many
+      #}
+
+      # SH 2019-12-03 Moved from above, and added join to v_claim_detail_feature
+      join: dt_claim_coverage {
+        view_label: "Claim Coverage"
+        # SH 2020-01-07 Modified join type from "left outer" to "inner"Moved from above, and added join to v_claim_detail_feature
+        #type: left_outer
+        type: inner
+        # SH 2019-12-03 Added the second join "AND ${v_claim_detail_feature.claimcoverage_num} = ${dt_claim_coverage.claimcoverage_num}"
+        sql_on: ${claim_control.claimcontrol_id} = ${dt_claim_coverage.claimcontrol_id}
               AND ${v_claim_detail_feature.claimexposure_id} = ${dt_claim_coverage.claimexposure_id}
               AND ${v_claim_detail_feature.claimsubexposure_num} = ${dt_claim_coverage.claimsubexposure_num}
               AND ${v_claim_detail_feature.claimcoverage_num} = ${dt_claim_coverage.claimcoverage_num}
               ;;
-      relationship: one_to_many
-    }
+        relationship: one_to_many
+      }
 
-    join: v_claim_detail_transaction {
-      view_label: "Checks & Transactions"
-      type: left_outer
-      relationship: one_to_many
-      sql_on: ${v_claim_detail_feature.claimcontrol_id} = ${v_claim_detail_transaction.claimcontrol_id}
+      join: v_claim_detail_transaction {
+        view_label: "Checks & Transactions"
+        type: left_outer
+        relationship: one_to_many
+        sql_on: ${v_claim_detail_feature.claimcontrol_id} = ${v_claim_detail_transaction.claimcontrol_id}
               AND ${v_claim_detail_feature.claimant_num} = ${v_claim_detail_transaction.claimant_num}
               AND ${v_claim_detail_feature.claimfeature_num} = ${v_claim_detail_transaction.claimfeature_num}
               ;;
       #sql_where: ${v_claim_detail_transaction.check_number} between 1 and 99999999 ;;
-      }
+        }
 
-      #ADDED by Saro on 2019-08-15
-      join: dt_first_loss_payment {
-        view_label: "Checks & Transactions"
-        type: left_outer
-        relationship: one_to_one
-        sql_on: ${v_claim_detail_transaction.claimcontrol_id} = ${dt_first_loss_payment.claimcontrol_id}
+        #ADDED by Saro on 2019-08-15
+        join: dt_first_loss_payment {
+          view_label: "Checks & Transactions"
+          type: left_outer
+          relationship: one_to_one
+          sql_on: ${v_claim_detail_transaction.claimcontrol_id} = ${dt_first_loss_payment.claimcontrol_id}
               and ${v_claim_detail_transaction.check_number} = ${dt_first_loss_payment.check_number}
       ;;
-      }
-      #END 2019-08-15
+        }
+        #END 2019-08-15
 
-      join: claim_transaction {
-        type: inner
-        view_label: "Checks & Transactions"
-        relationship: one_to_one
-        sql_on: ${v_claim_detail_transaction.claimcontrol_id} = ${claim_transaction.claimcontrol_id}
+        join: claim_transaction {
+          type: inner
+          view_label: "Checks & Transactions"
+          relationship: one_to_one
+          sql_on: ${v_claim_detail_transaction.claimcontrol_id} = ${claim_transaction.claimcontrol_id}
               AND ${v_claim_detail_transaction.claimant_num} = ${claim_transaction.claimant_num}
               AND ${v_claim_detail_transaction.claimfeature_num} = ${claim_transaction.claimfeature_num}
               AND ${v_claim_detail_transaction.claimtransaction_num} = ${claim_transaction.claimtransaction_num}
               ;;
-      }
+        }
 
-      join: claim_transaction_payee {
-        type: inner
-        view_label: "Checks & Transactions Payee"
-        relationship: one_to_many
-        sql_on: ${claim_transaction_payee.claimcontrol_id} = ${claim_transaction.claimcontrol_id}
+        join: claim_transaction_payee {
+          type: inner
+          view_label: "Checks & Transactions Payee"
+          relationship: one_to_many
+          sql_on: ${claim_transaction_payee.claimcontrol_id} = ${claim_transaction.claimcontrol_id}
               and ${claim_transaction_payee.claimant_num} = ${claim_transaction.claimant_num}
               and ${claim_transaction_payee.claimfeature_num} = ${claim_transaction.claimfeature_num}
               and ${claim_transaction_payee.claimtransaction_num} = ${claim_transaction.claimtransaction_num}
               ;;
-      }
+        }
 
-      join: v1099_payee_list {
-        view_label: "Checks & Transactions Payee"
-        type: inner
-        relationship: one_to_many
-        sql_on: ${v1099_payee_list.claimpayee_id} = ${claim_transaction_payee.claimpayee_id} ;;
-      }
+        join: v1099_payee_list {
+          view_label: "Checks & Transactions Payee"
+          type: inner
+          relationship: one_to_many
+          sql_on: ${v1099_payee_list.claimpayee_id} = ${claim_transaction_payee.claimpayee_id} ;;
+        }
 
 
-      join: dt_claim_transactions_as_of {
-        type: left_outer
-        view_label: "Claim Financials (As of Date)"
-        relationship: many_to_many
-        sql_on: ${v_claim_detail_transaction.claimcontrol_id} = ${dt_claim_transactions_as_of.claimcontrol_id}
+        join: dt_claim_transactions_as_of {
+          type: left_outer
+          view_label: "Claim Financials (As of Date)"
+          relationship: many_to_many
+          sql_on: ${v_claim_detail_transaction.claimcontrol_id} = ${dt_claim_transactions_as_of.claimcontrol_id}
               and ${v_claim_detail_transaction.claimant_num} = ${dt_claim_transactions_as_of.claimant_num}
               and ${v_claim_detail_transaction.claimfeature_num} = ${dt_claim_transactions_as_of.claimfeature_num}
               and ${v_claim_detail_transaction.claimtransaction_num} = ${dt_claim_transactions_as_of.claimtransaction_num}
               and ${dt_claim_transactions_as_of.calc} = 1
               ;;
-      }
+        }
 
-      join: dt_transaction_payee_type {
-        type: left_outer
-        view_label: "Checks & Transactions"
-        relationship: one_to_many
-        sql_on: ${v_claim_detail_transaction.claimcontrol_id} = ${dt_transaction_payee_type.claimcontrol_id}
+        join: dt_transaction_payee_type {
+          type: left_outer
+          view_label: "Checks & Transactions"
+          relationship: one_to_many
+          sql_on: ${v_claim_detail_transaction.claimcontrol_id} = ${dt_transaction_payee_type.claimcontrol_id}
               and ${v_claim_detail_transaction.claimant_num} = ${dt_transaction_payee_type.claimant_num}
               and ${v_claim_detail_transaction.claimfeature_num} = ${dt_transaction_payee_type.claimfeature_num}
               and ${v_claim_detail_transaction.claimtransaction_num} = ${dt_transaction_payee_type.claimtransaction_num}
               ;;
-      }
+        }
 
-      join: dt_transaction_payee_address {
-        type: left_outer
-        view_label: "Checks & Transactions"
-        relationship: one_to_one
-        sql_on: ${v_claim_detail_transaction.claimcontrol_id} = ${dt_transaction_payee_address.claimcontrol_id}
+        join: dt_transaction_payee_address {
+          type: left_outer
+          view_label: "Checks & Transactions"
+          relationship: one_to_one
+          sql_on: ${v_claim_detail_transaction.claimcontrol_id} = ${dt_transaction_payee_address.claimcontrol_id}
               and ${v_claim_detail_transaction.claimant_num} = ${dt_transaction_payee_address.claimant_num}
               and ${v_claim_detail_transaction.claimfeature_num} = ${dt_transaction_payee_address.claimfeature_num}
               and ${v_claim_detail_transaction.claimtransaction_num} = ${dt_transaction_payee_address.claimtransaction_num}
               ;;
+        }
+
+        join: dt_claim_status_as_of {
+          type: inner
+          view_label: "Claim Financials (As of Date)"
+          relationship: one_to_one
+          sql_on: ${claim_control.claimcontrol_id} = ${dt_claim_status_as_of.claimcontrol_id} ;;
+        }
+
+        join: claim_transaction_category {
+          type: left_outer
+          view_label: "Checks & Transactions"
+          relationship: one_to_many
+          sql_on: ${v_claim_detail_transaction.claimtransactioncategory_id} = ${claim_transaction_category.claimtransacationcategory_id} ;;
+        }
+
+        join: claim_pay_type {
+          type: left_outer
+          view_label: "Checks & Transactions"
+          relationship: one_to_many
+          sql_on: ${claim_transaction.claimpaytype_id} = ${claim_pay_type.claimpaytype_id} ;;
+        }
+
+        join: check_status {
+          # SH 2019-12-03 Changed join type from "inner" to "left_outer"
+          # SH 2019-12-18 Changed join back from "left_outer" to "inner", due to issue found with "pending check report"
+          type: inner
+          #type: left_outer
+          view_label: "Checks & Transactions"
+          relationship: one_to_many
+          sql_on: ${v_claim_detail_transaction.checkstatus_id} = ${check_status.checkstatus_id} ;;
+        }
+
+        join: claim_catastrophe {
+          view_label: "Claim CAT"
+          type: left_outer
+          sql_on: ${claim_catastrophe.claimcatastrophe_id} = ${claim_control.claimcatastrophe_id} ;;
+          #sql_where: ${claim_catastrophe.claimcatastrophe_id} > 0 ;;
+          relationship: one_to_one
+        }
+
+        join:  policy {
+          view_label: "Policy"
+          type: left_outer
+          relationship: many_to_one
+          sql_on: ${policy.policy_id} = ${claim_control.policy_id}  ;;
+        }
+
+        join: dt_policy_agency {
+          view_label: "Policy"
+          type: inner
+          relationship: one_to_many
+          sql_on: ${policy.policy_id} = ${dt_policy_agency.policy_id} ;;
+        }
+
+        # join: current_status {
+        #   view_label: "Policy"
+        #   type: inner
+        #   sql_on: ${policy.policycurrentstatus_id} = ${current_status.policycurrentstatus_id} ;;
+        #   relationship: one_to_one
+        # }
+
+        join: policy_image {
+          type: inner
+          sql_on: ${claim_control.policy_id} = ${policy_image.policy_id} ;;
+          relationship: many_to_many
+        }
+
+        # join: policy_image_address_link {
+        #   type:  inner
+        #   sql_on: ${policy_image.policy_id} = ${policy_image_address_link.policy_id} AND ${policy_image.policyimage_num} = ${policy_image_address_link.policyimage_num} ;;
+        #   relationship: one_to_many
+        # }
+
+        # join: policy_address {
+        #   view_label: "Address"
+        #   type:  inner
+        #   sql_on:  ${policy_image_address_link.address_id} = ${policy_address.address_id};;
+        #   relationship: one_to_one
+        # }
+
+        # join: name_address_source {
+        #   view_label: "Address"
+        #   type: inner
+        #   sql_on: ${policy_address.nameaddresssource_id} = ${name_address_source.nameaddresssource_id} ;;
+        #   relationship: one_to_one
+        # }
+
+        # join: state {
+        #   view_label: "Address"
+        #   type:  inner
+        #   sql_on: ${policy_address.state_id} = ${state.state_id} ;;
+        #   relationship:  one_to_one
+        # }
+
+        join: version {
+          type: inner
+          sql_on: ${policy_image.version_id} = ${version.version_id} ;;
+          relationship: many_to_one
+        }
+
+        join: company_state_lob {
+          view_label: "Company"
+          type: inner
+          sql_on: ${version.companystatelob_id} = ${company_state_lob.companystatelob_id} ;;
+          relationship: one_to_one
+        }
+
+        # SH 2019-12-03 Moved to below Feature
+        #join: dt_claim_coverage {
+        #  view_label: "Claim Coverage"
+        #  type: left_outer
+        #  sql_on: ${claim_control.claimcontrol_id} = ${dt_claim_coverage.claimcontrol_id} ;;
+        #  relationship: one_to_many
+        #}
+
+        # Added on 2019-07-24  TT 287000
+        #join: dt_days_to_first_loss_payment {
+        # Replaced with new view on 2020-04-29 to add new data points for MCAS reporting
+        # SH 2020-06-18 - TT 302617 Added join on claimant_num and claimfeature_num
+        join: dt_days_to_loss_payments {
+          view_label: "Checks & Transactions"
+          type: inner
+          sql_on: ${claim_control.claimcontrol_id} = ${dt_days_to_loss_payments.claimcontrol_id}
+                      and ${v_claim_detail_claimant.claimant_num} = ${dt_days_to_loss_payments.claimant_num}
+                      and ${v_claim_detail_feature.claimfeature_num} = ${dt_days_to_loss_payments.claimfeature_num} ;;
+          relationship: one_to_many
+        }
+
+        # Added on 2019-08-28  TT 286803
+        join: claim_clue_disp {
+          view_label: "Claim"
+          type: inner
+          sql_on: ${claim_control.claimcluedisp_id} = ${claim_clue_disp.claimcluedisp_id} ;;
+          relationship: many_to_one
+        }
+
+        # Added on 2019-12-30  TT 294433
+        join: dt_last_claim_activity {
+          view_label: "Claim Activity"
+          type: left_outer
+          sql_on: ${claim_control.claimcontrol_id} = ${dt_last_claim_activity.claimcontrol_id} ;;
+          relationship: one_to_one
+        }
+
+        # Added on 2020-02-29  TT 294681
+        join: dt_asl_claim_level {
+          view_label: "Claim"
+          type: left_outer
+          sql_on: ${dt_asl_claim_level.claimcontrol_id} = ${claim_control.claimcontrol_id} ;;
+          relationship: one_to_one
+        }
+
+        # Added on 2020-08-28  TT 305900
+        join: claim_office {
+          view_label: "Claim"
+          fields: [claim_office.dscr]
+          type: left_outer
+          sql_on: ${claim_office.claimoffice_id} = ${claim_control.claimoffice_id} ;;
+          relationship: one_to_many
+        }
       }
-
-      join: dt_claim_status_as_of {
-        type: inner
-        view_label: "Claim Financials (As of Date)"
-        relationship: one_to_one
-        sql_on: ${claim_control.claimcontrol_id} = ${dt_claim_status_as_of.claimcontrol_id} ;;
-      }
-
-      join: claim_transaction_category {
-        type: left_outer
-        view_label: "Checks & Transactions"
-        relationship: one_to_many
-        sql_on: ${v_claim_detail_transaction.claimtransactioncategory_id} = ${claim_transaction_category.claimtransacationcategory_id} ;;
-      }
-
-      join: claim_pay_type {
-        type: left_outer
-        view_label: "Checks & Transactions"
-        relationship: one_to_many
-        sql_on: ${claim_transaction.claimpaytype_id} = ${claim_pay_type.claimpaytype_id} ;;
-      }
-
-      join: check_status {
-        # SH 2019-12-03 Changed join type from "inner" to "left_outer"
-        # SH 2019-12-18 Changed join back from "left_outer" to "inner", due to issue found with "pending check report"
-        type: inner
-        #type: left_outer
-        view_label: "Checks & Transactions"
-        relationship: one_to_many
-        sql_on: ${v_claim_detail_transaction.checkstatus_id} = ${check_status.checkstatus_id} ;;
-      }
-
-      join: claim_catastrophe {
-        view_label: "Claim CAT"
-        type: left_outer
-        sql_on: ${claim_catastrophe.claimcatastrophe_id} = ${claim_control.claimcatastrophe_id} ;;
-        #sql_where: ${claim_catastrophe.claimcatastrophe_id} > 0 ;;
-        relationship: one_to_one
-      }
-
-      join:  policy {
-        view_label: "Policy"
-        type: left_outer
-        relationship: many_to_one
-        sql_on: ${policy.policy_id} = ${claim_control.policy_id}  ;;
-      }
-
-      join: dt_policy_agency {
-        view_label: "Policy"
-        type: inner
-        relationship: one_to_many
-        sql_on: ${policy.policy_id} = ${dt_policy_agency.policy_id} ;;
-      }
-
-      # join: current_status {
-      #   view_label: "Policy"
-      #   type: inner
-      #   sql_on: ${policy.policycurrentstatus_id} = ${current_status.policycurrentstatus_id} ;;
-      #   relationship: one_to_one
-      # }
-
-      join: policy_image {
-        type: inner
-        sql_on: ${claim_control.policy_id} = ${policy_image.policy_id} ;;
-        relationship: many_to_many
-      }
-
-      # join: policy_image_address_link {
-      #   type:  inner
-      #   sql_on: ${policy_image.policy_id} = ${policy_image_address_link.policy_id} AND ${policy_image.policyimage_num} = ${policy_image_address_link.policyimage_num} ;;
-      #   relationship: one_to_many
-      # }
-
-      # join: policy_address {
-      #   view_label: "Address"
-      #   type:  inner
-      #   sql_on:  ${policy_image_address_link.address_id} = ${policy_address.address_id};;
-      #   relationship: one_to_one
-      # }
-
-      # join: name_address_source {
-      #   view_label: "Address"
-      #   type: inner
-      #   sql_on: ${policy_address.nameaddresssource_id} = ${name_address_source.nameaddresssource_id} ;;
-      #   relationship: one_to_one
-      # }
-
-      # join: state {
-      #   view_label: "Address"
-      #   type:  inner
-      #   sql_on: ${policy_address.state_id} = ${state.state_id} ;;
-      #   relationship:  one_to_one
-      # }
-
-      join: version {
-        type: inner
-        sql_on: ${policy_image.version_id} = ${version.version_id} ;;
-        relationship: many_to_one
-      }
-
-      join: company_state_lob {
-        view_label: "Company"
-        type: inner
-        sql_on: ${version.companystatelob_id} = ${company_state_lob.companystatelob_id} ;;
-        relationship: one_to_one
-      }
-
-      # SH 2019-12-03 Moved to below Feature
-      #join: dt_claim_coverage {
-      #  view_label: "Claim Coverage"
-      #  type: left_outer
-      #  sql_on: ${claim_control.claimcontrol_id} = ${dt_claim_coverage.claimcontrol_id} ;;
-      #  relationship: one_to_many
-      #}
-
-      # Added on 2019-07-24  TT 287000
-      #join: dt_days_to_first_loss_payment {
-      # Replaced with new view on 2020-04-29 to add new data points for MCAS reporting
-      # SH 2020-06-18 - TT 302617 Added join on claimant_num and claimfeature_num
-      join: dt_days_to_loss_payments {
-        view_label: "Checks & Transactions"
-        type: inner
-        sql_on: ${claim_control.claimcontrol_id} = ${dt_days_to_loss_payments.claimcontrol_id}
-          and ${v_claim_detail_claimant.claimant_num} = ${dt_days_to_loss_payments.claimant_num}
-          and ${v_claim_detail_feature.claimfeature_num} = ${dt_days_to_loss_payments.claimfeature_num} ;;
-        relationship: one_to_many
-      }
-
-      # Added on 2019-08-28  TT 286803
-      join: claim_clue_disp {
-        view_label: "Claim"
-        type: inner
-        sql_on: ${claim_control.claimcluedisp_id} = ${claim_clue_disp.claimcluedisp_id} ;;
-        relationship: many_to_one
-      }
-
-      # Added on 2019-09-18  TT 289862
-      # SH 2020-06-18 - TT 302617 Added join on claimant_num and claimfeature_num
-      join: dt_date_latest_indemnity_payment {
-        view_label: "Checks & Transactions"
-        type: left_outer
-        sql_on: ${claim_control.claimcontrol_id} = ${dt_date_latest_indemnity_payment.claimcontrol_id}
-          and ${v_claim_detail_claimant.claimant_num} = ${dt_date_latest_indemnity_payment.claimant_num}
-          and ${v_claim_detail_feature.claimfeature_num} = ${dt_date_latest_indemnity_payment.claimfeature_num} ;;
-        relationship: one_to_one
-      }
-
-      # Added on 2019-12-30  TT 294433
-      join: dt_last_claim_activity {
-        view_label: "Claim Activity"
-        type: left_outer
-        sql_on: ${claim_control.claimcontrol_id} = ${dt_last_claim_activity.claimcontrol_id} ;;
-        relationship: one_to_one
-      }
-
-      # Added on 2020-02-29  TT 294681
-      join: dt_asl_claim_level {
-        view_label: "Claim"
-        type: left_outer
-        sql_on: ${dt_asl_claim_level.claimcontrol_id} = ${claim_control.claimcontrol_id} ;;
-        relationship: one_to_one
-      }
-
-      # Added on 2020-08-28  TT 305900
-      join: claim_office {
-        view_label: "Claim"
-        fields: [claim_office.dscr]
-        type: left_outer
-        sql_on: ${claim_office.claimoffice_id} = ${claim_control.claimoffice_id} ;;
-        relationship: one_to_many
-      }
-    }

@@ -109,6 +109,7 @@ view: dt_claim_feature_activity {
     sql: ${TABLE}.latest_close_date ;;
   }
 
+
   dimension: days_open {
     label: "Days Open to Close"
     type: number
@@ -122,23 +123,46 @@ view: dt_claim_feature_activity {
     sql: ${TABLE}.days_open_cumulative ;;
   }
 
+  dimension : latest_closed_within {
+    type: tier
+    label: "Latest Closed Within (Tiers)"
+    tiers: [31,61,91,181,366]
+    style: integer
+    sql: case when ${dim_days_open_cumulative} IS NULL
+      then NULL
+      else ${dim_days_open_cumulative} end ;;
+    value_format: "0"
+  }
+
   measure: count {
-    hidden: yes
     type: count
     drill_fields: [detail*]
   }
 
-  measure: days_open_cumulative {
-    label: "Average Days First Open to Last Close"
-    type: average
-    sql: ${dim_days_open_cumulative} ;;
-    value_format_name: decimal_0
-    drill_fields: [detail*]
+  measure: count_with_indemnity_paid {
+    label: "Count with Paid Loss"
+    type: count
+    drill_fields: [claim_stat*]
+    filters: {
+      field: v_claim_detail_feature.indemnity_paid
+      value: ">0"
+    }
+  }
+
+  #SH 2020-04-20 Add a new data point to help with MCAS 20 counts
+  measure: count_without_indemnity_paid {
+    label: "Count without Paid Loss"
+    type: count
+    drill_fields: [claim_stat*]
+    filters: {
+      field: v_claim_detail_feature.indemnity_paid
+      value: "=0"
+    }
   }
 
   set: detail {
     fields: [
-      claimcontrol_id,
+      claim_control.claim_number,
       claimant_num,
       claimfeature_num,
       num,
@@ -147,7 +171,32 @@ view: dt_claim_feature_activity {
       first_open_date_date,
       latest_close_date_date,
       days_open,
-      days_open_cumulative
+      dt_date_latest_indemnity_payment.max_check_date_date,
+      v_claim_detail_feature.sum_indemnity_paid,
+      v_claim_detail_feature.sum_indemnity_reserve,
+      v_claim_detail_feature.sum_expense_paid
+    ]
+  }
+
+  set: claim_stat {
+    fields: [
+      claim_control.claim_number,
+      claimant_num,
+      claimfeature_num,
+      num,
+      open_date_date,
+      close_date_date,
+      first_open_date_date,
+      latest_close_date_date,
+      days_open,
+      policy.current_policy,
+      claim_type.dscr,
+      claim_severity.dscr,
+      claim_control.loss_date_date,
+      dt_date_latest_indemnity_payment.max_check_date_date,
+      v_claim_detail_feature.sum_indemnity_paid,
+      v_claim_detail_feature.sum_indemnity_reserve,
+      v_claim_detail_feature.sum_expense_paid
     ]
   }
 }
