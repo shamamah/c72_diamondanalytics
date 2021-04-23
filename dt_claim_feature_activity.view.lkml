@@ -135,7 +135,9 @@ view: dt_claim_feature_activity {
   }
 
   measure: count {
-    type: count
+    #label: "The Count"
+    type: count_distinct
+    sql: ${claimcontrol_id} ;;
     drill_fields: [detail*]
   }
 
@@ -165,12 +167,11 @@ view: dt_claim_feature_activity {
       claim_control.claim_number,
       claimant_num,
       claimfeature_num,
-      num,
-      open_date_date,
-      close_date_date,
+      # open_date_date,
+      # close_date_date,
       first_open_date_date,
       latest_close_date_date,
-      days_open,
+      #days_open,
       dt_date_latest_indemnity_payment.max_check_date_date,
       v_claim_detail_feature.sum_indemnity_paid,
       v_claim_detail_feature.sum_indemnity_reserve,
