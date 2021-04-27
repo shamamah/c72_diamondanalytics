@@ -1,6 +1,8 @@
 view: dt_claim_feature_as_of_date {
   derived_table: {
-    sql: SELECT claim_Feature.*, claim_activity_code.dscr AS current_feature_status
+    sql: SELECT claim_feature.claimcontrol_id, claim_feature.claimant_num, claim_feature.claimfeature_num, claim_feature.deductible_applied,
+        claim_feature.deductible, claim_feature.exposure_dscr, claim_feature.subexposure_dscr, claim_feature.coverage_dscr, claim_feature.subcoverage_dscr,
+        claim_feature.in_litigation, claim_feature.deductible_waived, claim_feature.denied, claim_activity_code.dscr AS current_feature_status
       FROM dbo.ClaimFeature claim_Feature (NOLOCK)
       INNER JOIN dbo.ClaimFeatureActivity claim_feature_activity (NOLOCK)
         ON claim_feature_activity.claimcontrol_id = claim_Feature.claimcontrol_id
@@ -60,122 +62,122 @@ view: dt_claim_feature_as_of_date {
     sql: ${TABLE}.claimfeature_num ;;
   }
 
-  dimension: claimexposure_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimexposure_id ;;
-  }
+  # dimension: claimexposure_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimexposure_id ;;
+  # }
 
-  dimension: claimsubexposure_num {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimsubexposure_num ;;
-  }
+  # dimension: claimsubexposure_num {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimsubexposure_num ;;
+  # }
 
-  dimension: claimcoverage_num {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimcoverage_num ;;
-  }
+  # dimension: claimcoverage_num {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimcoverage_num ;;
+  # }
 
-  dimension: claimsubcoverage_num {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimsubcoverage_num ;;
-  }
+  # dimension: claimsubcoverage_num {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimsubcoverage_num ;;
+  # }
 
   dimension: deductible_applied {
     type: string
     sql: case when ${TABLE}.deductible_applied = 'true' then 'Yes' else 'No' end ;;
   }
 
-  dimension: deductible_amount {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.deductible_amount ;;
-  }
+  # dimension: deductible_amount {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.deductible_amount ;;
+  # }
 
-  dimension: first_indemnity_reserve_set {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.first_indemnity_reserve_set ;;
-  }
+  # dimension: first_indemnity_reserve_set {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.first_indemnity_reserve_set ;;
+  # }
 
-  dimension: first_indemnity_reserve_num {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.first_indemnity_reserve_num ;;
-  }
+  # dimension: first_indemnity_reserve_num {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.first_indemnity_reserve_num ;;
+  # }
 
-  dimension: first_indemnity_reserve {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.first_indemnity_reserve ;;
-  }
+  # dimension: first_indemnity_reserve {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.first_indemnity_reserve ;;
+  # }
 
-  dimension_group: first_indemnity_reserve_date {
-    hidden: yes
-    type: time
-    timeframes: [date,month,year]
-    sql: ${TABLE}.first_indemnity_reserve_date ;;
-  }
+  # dimension_group: first_indemnity_reserve_date {
+  #   hidden: yes
+  #   type: time
+  #   timeframes: [date,month,year]
+  #   sql: ${TABLE}.first_indemnity_reserve_date ;;
+  # }
 
-  dimension: first_indemnity_payment_set {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.first_indemnity_payment_set ;;
-  }
+  # dimension: first_indemnity_payment_set {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.first_indemnity_payment_set ;;
+  # }
 
-  dimension: first_indemnity_payment_num {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.first_indemnity_payment_num ;;
-  }
+  # dimension: first_indemnity_payment_num {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.first_indemnity_payment_num ;;
+  # }
 
-  dimension_group: reported_date {
-    hidden: yes
-    type: time
-    timeframes: [date,month,year]
-    sql: ${TABLE}.reported_date ;;
-  }
+  # dimension_group: reported_date {
+  #   hidden: yes
+  #   type: time
+  #   timeframes: [date,month,year]
+  #   sql: ${TABLE}.reported_date ;;
+  # }
 
-  dimension: claimreportedby_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimreportedby_id ;;
-  }
+  # dimension: claimreportedby_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimreportedby_id ;;
+  # }
 
-  dimension: claimreportedbymethod_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimreportedbymethod_id ;;
-  }
+  # dimension: claimreportedbymethod_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimreportedbymethod_id ;;
+  # }
 
-  dimension: dscr {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.dscr ;;
-  }
+  # dimension: dscr {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.dscr ;;
+  # }
 
-  dimension: notify_underwriting {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.notify_underwriting ;;
-  }
+  # dimension: notify_underwriting {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.notify_underwriting ;;
+  # }
 
-  dimension: perperson_limit {
-    hidden: yes
-    label: "Per Person Limit"
-    type: string
-    sql: ${TABLE}.perperson_limit ;;
-  }
+  # dimension: perperson_limit {
+  #   hidden: yes
+  #   label: "Per Person Limit"
+  #   type: string
+  #   sql: ${TABLE}.perperson_limit ;;
+  # }
 
-  dimension: peroccur_limit {
-    hidden: yes
-    label: "Per Occurrence Limit"
-    type: string
-    sql: ${TABLE}.peroccur_limit ;;
-  }
+  # dimension: peroccur_limit {
+  #   hidden: yes
+  #   label: "Per Occurrence Limit"
+  #   type: string
+  #   sql: ${TABLE}.peroccur_limit ;;
+  # }
 
   dimension: deductible {
     type: string
@@ -206,286 +208,286 @@ view: dt_claim_feature_as_of_date {
     sql: ${TABLE}.subcoverage_dscr ;;
   }
 
-  dimension: inside_adjuster_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.inside_adjuster_id ;;
-  }
+  # dimension: inside_adjuster_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.inside_adjuster_id ;;
+  # }
 
-  dimension: outside_adjuster_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.outside_adjuster_id ;;
-  }
+  # dimension: outside_adjuster_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.outside_adjuster_id ;;
+  # }
 
   dimension: in_litigation {
     type: yesno
     sql: ${TABLE}.in_litigation = 1 ;;
   }
 
-  dimension: in_suit {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.in_suit ;;
-  }
-
-  dimension: in_salvage {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.in_salvage ;;
-  }
-
-  dimension: zero_tort {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.zero_tort ;;
-  }
-
-  dimension: record_only {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.record_only ;;
-  }
-
-  dimension: tort_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.tort_id ;;
-  }
-
-  dimension: users_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.users_id ;;
-  }
-
-  # dimension_group: added {
-  #   type: time
-  #   sql: ${TABLE}.added ;;
+  # dimension: in_suit {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.in_suit ;;
   # }
 
-  dimension_group: clue_date {
-    hidden: yes
-    type: time
-    timeframes: [date,month,year]
-    sql: ${TABLE}.clue_date ;;
-  }
+  # dimension: in_salvage {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.in_salvage ;;
+  # }
 
-  dimension: reopened {
-    hidden: yes
-    type: string
-    sql: case when ${TABLE}.reopened = 'true' then 'Yes' else 'No' end ;;
-  }
+  # dimension: zero_tort {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.zero_tort ;;
+  # }
 
-  dimension_group: reopened_date {
-    hidden: yes
-    type: time
-    timeframes: [date,month,year]
-    sql: ${TABLE}.reopened_date ;;
-  }
+  # dimension: record_only {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.record_only ;;
+  # }
 
-  dimension: claimfeature_userdef_1_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimfeature_userdef_1_id ;;
-  }
+  # dimension: tort_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.tort_id ;;
+  # }
 
-  dimension: claimfeature_userdef_2_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimfeature_userdef_2_id ;;
-  }
+  # dimension: users_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.users_id ;;
+  # }
 
-  dimension: claimfeature_userdef_3_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimfeature_userdef_3_id ;;
-  }
+  # # dimension_group: added {
+  # #   type: time
+  # #   sql: ${TABLE}.added ;;
+  # # }
 
-  dimension: claimfeaturestatus_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimfeaturestatus_id ;;
-  }
+  # dimension_group: clue_date {
+  #   hidden: yes
+  #   type: time
+  #   timeframes: [date,month,year]
+  #   sql: ${TABLE}.clue_date ;;
+  # }
 
-  dimension: claimfinancials_num {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimfinancials_num ;;
-  }
+  # dimension: reopened {
+  #   hidden: yes
+  #   type: string
+  #   sql: case when ${TABLE}.reopened = 'true' then 'Yes' else 'No' end ;;
+  # }
 
-  dimension_group: added {
-    label: "Added"
-    type: time
-    timeframes: [date,month,year]
-    sql: ${TABLE}.added_date ;;
-  }
+  # dimension_group: reopened_date {
+  #   hidden: yes
+  #   type: time
+  #   timeframes: [date,month,year]
+  #   sql: ${TABLE}.reopened_date ;;
+  # }
 
-  dimension_group: pcadded_date {
-    hidden: yes
-    type: time
-    sql: ${TABLE}.pcadded_date ;;
-  }
+  # dimension: claimfeature_userdef_1_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimfeature_userdef_1_id ;;
+  # }
+
+  # dimension: claimfeature_userdef_2_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimfeature_userdef_2_id ;;
+  # }
+
+  # dimension: claimfeature_userdef_3_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimfeature_userdef_3_id ;;
+  # }
+
+  # dimension: claimfeaturestatus_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimfeaturestatus_id ;;
+  # }
+
+  # dimension: claimfinancials_num {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimfinancials_num ;;
+  # }
+
+  # dimension_group: added {
+  #   label: "Added"
+  #   type: time
+  #   timeframes: [date,month,year]
+  #   sql: ${TABLE}.added_date ;;
+  # }
+
+  # dimension_group: pcadded_date {
+  #   hidden: yes
+  #   type: time
+  #   sql: ${TABLE}.pcadded_date ;;
+  # }
 
   dimension: deductible_waived {
     type: string
     sql: case when ${TABLE}.deductible_waived = 'true' then 'Yes' else 'No' end ;;
   }
 
-  dimension: old_exposure_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.old_exposure_id ;;
-  }
+  # dimension: old_exposure_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.old_exposure_id ;;
+  # }
 
-  dimension: old_subexposure_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.old_subexposure_id ;;
-  }
+  # dimension: old_subexposure_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.old_subexposure_id ;;
+  # }
 
-  dimension: old_subexposure_num {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.old_subexposure_num ;;
-  }
+  # dimension: old_subexposure_num {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.old_subexposure_num ;;
+  # }
 
-  dimension: old_subexposure_ver {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.old_subexposure_ver ;;
-  }
+  # dimension: old_subexposure_ver {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.old_subexposure_ver ;;
+  # }
 
-  dimension: old_coverage_num {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.old_coverage_num ;;
-  }
+  # dimension: old_coverage_num {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.old_coverage_num ;;
+  # }
 
-  dimension: old_coveragecode_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.old_coveragecode_id ;;
-  }
+  # dimension: old_coveragecode_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.old_coveragecode_id ;;
+  # }
 
-  dimension: old_subcoveragecode_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.old_subcoveragecode_id ;;
-  }
+  # dimension: old_subcoveragecode_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.old_subcoveragecode_id ;;
+  # }
 
-  dimension: claimoffice_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimoffice_id ;;
-  }
+  # dimension: claimoffice_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimoffice_id ;;
+  # }
 
-  dimension_group: last_modified_date {
-    hidden: yes
-    type: time
-    sql: ${TABLE}.last_modified_date ;;
-  }
+  # dimension_group: last_modified_date {
+  #   hidden: yes
+  #   type: time
+  #   sql: ${TABLE}.last_modified_date ;;
+  # }
 
-  dimension: coverage_limitations {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.coverage_limitations ;;
-  }
+  # dimension: coverage_limitations {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.coverage_limitations ;;
+  # }
 
-  dimension_group: statute_of_limitations_date {
-    hidden: yes
-    type: time
-    sql: ${TABLE}.statute_of_limitations_date ;;
-  }
+  # dimension_group: statute_of_limitations_date {
+  #   hidden: yes
+  #   type: time
+  #   sql: ${TABLE}.statute_of_limitations_date ;;
+  # }
 
-  dimension: waive_iso_reporting {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.waive_iso_reporting ;;
-  }
+  # dimension: waive_iso_reporting {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.waive_iso_reporting ;;
+  # }
 
-  dimension: corvel_approved_amount {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.corvel_approved_amount ;;
-  }
+  # dimension: corvel_approved_amount {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.corvel_approved_amount ;;
+  # }
 
-  dimension: exclude_from_medical {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.exclude_from_medical ;;
-  }
+  # dimension: exclude_from_medical {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.exclude_from_medical ;;
+  # }
 
-  dimension: attorney_involved_date {
-    hidden: yes
-    type: date
-    sql: ${TABLE}.attorney_involved_date ;;
-  }
+  # dimension: attorney_involved_date {
+  #   hidden: yes
+  #   type: date
+  #   sql: ${TABLE}.attorney_involved_date ;;
+  # }
 
-  dimension_group: claimdenial_date {
-    hidden: yes
-    type: time
-    sql: ${TABLE}.claimdenial_date ;;
-  }
+  # dimension_group: claimdenial_date {
+  #   hidden: yes
+  #   type: time
+  #   sql: ${TABLE}.claimdenial_date ;;
+  # }
 
   dimension: denied {
     type: string
     sql: case when ${TABLE}.denied = 'true' then 'Yes' else 'No' end ;;
   }
 
-  dimension: claimdenialreason_remarks {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.claimdenialreason_remarks ;;
-  }
+  # dimension: claimdenialreason_remarks {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.claimdenialreason_remarks ;;
+  # }
 
-  dimension: claimdenialusers_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimdenialusers_id ;;
-  }
+  # dimension: claimdenialusers_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimdenialusers_id ;;
+  # }
 
-  dimension: claimdenialreason_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimdenialreason_id ;;
-  }
+  # dimension: claimdenialreason_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimdenialreason_id ;;
+  # }
 
-  dimension: deductible_available_amount {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.deductible_available_amount ;;
-  }
+  # dimension: deductible_available_amount {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.deductible_available_amount ;;
+  # }
 
-  dimension: deductible_applied_amount {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.deductible_applied_amount ;;
-  }
+  # dimension: deductible_applied_amount {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.deductible_applied_amount ;;
+  # }
 
-  dimension: in_litigation_yesno_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.in_litigation_yesno_id ;;
-  }
+  # dimension: in_litigation_yesno_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.in_litigation_yesno_id ;;
+  # }
 
-  dimension: claimfeatureclosereason_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimfeatureclosereason_id ;;
-  }
+  # dimension: claimfeatureclosereason_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimfeatureclosereason_id ;;
+  # }
 
-  dimension: claimsubropotentialtype_id {
-    hidden: yes
-    type: number
-    sql: ${TABLE}.claimsubropotentialtype_id ;;
-  }
+  # dimension: claimsubropotentialtype_id {
+  #   hidden: yes
+  #   type: number
+  #   sql: ${TABLE}.claimsubropotentialtype_id ;;
+  # }
 
-  dimension: is_early_settlement_opportunity {
-    hidden: yes
-    type: string
-    sql: ${TABLE}.is_early_settlement_opportunity ;;
-  }
+  # dimension: is_early_settlement_opportunity {
+  #   hidden: yes
+  #   type: string
+  #   sql: ${TABLE}.is_early_settlement_opportunity ;;
+  # }
 
   dimension: current_feature_status {
     label: "Status"
