@@ -8,7 +8,7 @@ view: dt_date_latest_indemnity_payment {
 
               --SH 2021-04-21 - TT 315292 Replaced logic from TT 315226 since it's creating duplicates by grouping added_date
               --,claim_control.added_date as added_date
-              ,min(claim_feature.added_date) as added_date
+              ,min(claim_feature_activity.added_date) as added_date
 
               ,max(v_claim_detail_transaction.check_date) as max_check_date
 
@@ -18,9 +18,14 @@ view: dt_date_latest_indemnity_payment {
                     AND v_claim_detail_claimant.claimant_num = v_claim_detail_feature.claimant_num
 
       --SH 2021-04-21 - TT 315292 joining to table ClaimFeature to get the added_date (not in the view)
-      LEFT JOIN dbo.ClaimFeature  AS claim_feature ON v_claim_detail_feature.claimcontrol_id = claim_feature.claimcontrol_id
-                    AND v_claim_detail_feature.claimant_num = claim_feature.claimant_num
-          AND v_claim_detail_feature.claimfeature_num = claim_feature.claimfeature_num
+      --SH 2021-04-29 - TT 315292 Changed table from ClaimFeature to ClaimFeatureActivity so we get true open date
+      --LEFT JOIN dbo.ClaimFeature  AS claim_feature ON v_claim_detail_feature.claimcontrol_id = claim_feature.claimcontrol_id
+      --              AND v_claim_detail_feature.claimant_num = claim_feature.claimant_num
+      --    AND v_claim_detail_feature.claimfeature_num = claim_feature.claimfeature_num
+      LEFT JOIN dbo.ClaimFeatureActivity  AS claim_feature_activity ON v_claim_detail_feature.claimcontrol_id = claim_feature_activity.claimcontrol_id
+                    AND v_claim_detail_feature.claimant_num = claim_feature_activity.claimant_num
+                    AND v_claim_detail_feature.claimfeature_num = claim_feature_activity.claimfeature_num
+                    AND claim_feature_activity.claimactivitycode_id = 1
 
       LEFT JOIN dbo.vClaimDetail_Transaction  AS v_claim_detail_transaction ON v_claim_detail_feature.claimcontrol_id = v_claim_detail_transaction.claimcontrol_id
                     AND v_claim_detail_feature.claimant_num = v_claim_detail_transaction.claimant_num
@@ -72,6 +77,7 @@ view: dt_date_latest_indemnity_payment {
     type: time
     timeframes: [date,month,year]
     sql: ${TABLE}.max_check_date ;;
+    convert_tz: no
   }
 
   #SH 2021-04-01 Added data point with more tiers for MCAS reporting 23-28 TT 315226
