@@ -3,8 +3,9 @@ view: dt_claim_feature_activity {
     sql:
 
       SELECT O.claimcontrol_id, O.claimant_num, O.claimfeature_num, ROW_NUMBER() OVER (PARTITION BY O.claimcontrol_id, O.claimant_num, O.claimfeature_num ORDER BY O.num) AS num,
-        O.added_date AS open_date, C.added_date AS close_date, first_open.first_open_date, lastest_closed.latest_close_date,
-        DATEDIFF(dd,O.added_date,C.added_date) AS days_open, DATEDIFF(dd,first_open.first_open_date,lastest_closed.latest_close_date) AS days_open_cumulative
+        O.added_date AS open_date, C.added_date AS close_date, first_open.first_open_date, lastest_closed.latest_close_date, lastest_indemnity_payment_date.lastest_indemnity_payment_date,
+        DATEDIFF(dd,O.added_date,C.added_date) AS days_open, DATEDIFF(dd,first_open.first_open_date,lastest_closed.latest_close_date) AS days_open_cumulative,
+    DATEDIFF(dd,first_open.first_open_date,lastest_indemnity_payment_date.lastest_indemnity_payment_date) AS days_to_last_indemnity_payment
       FROM
           (
             SELECT claimcontrol_id, claimant_num, claimfeature_num, num, added_date, ROW_NUMBER() OVER (PARTITION BY claimcontrol_id, claimant_num, claimfeature_num ORDER BY num) AS RN
@@ -47,6 +48,22 @@ view: dt_claim_feature_activity {
           ON lastest_closed.claimcontrol_id = O.claimcontrol_id
             AND lastest_closed.claimant_num = O.claimant_num
             AND lastest_closed.claimfeature_num = O.claimfeature_num
+
+    --SH 2021-04-30  This join added for additional dimensions and measures at the claim_feature level
+    LEFT OUTER JOIN
+          (
+            SELECT claimcontrol_id, claimant_num, claimfeature_num, max(v_claim_detail_transaction.check_date) as lastest_indemnity_payment_date
+            FROM dbo.vClaimDetail_Transaction AS v_claim_detail_transaction
+        LEFT JOIN dbo.ClaimTransactionCategory  AS claim_transaction_category ON v_claim_detail_transaction.claimtransactioncategory_id = claim_transaction_category.claimtransactioncategory_id
+        INNER JOIN dbo.CheckStatus  AS check_status ON v_claim_detail_transaction.checkstatus_id = check_status.checkstatus_id
+            WHERE claim_transaction_category.dscr = 'Loss Payment'
+        AND v_claim_detail_transaction.check_number between 1 and 99999999
+        AND check_status.[description] <> 'Void'
+            GROUP BY claimcontrol_id, claimant_num, claimfeature_num
+          ) lastest_indemnity_payment_date
+          ON lastest_indemnity_payment_date.claimcontrol_id = O.claimcontrol_id
+            AND lastest_indemnity_payment_date.claimant_num = O.claimant_num
+            AND lastest_indemnity_payment_date.claimfeature_num = O.claimfeature_num
        ;;
   }
 
@@ -109,6 +126,12 @@ view: dt_claim_feature_activity {
     sql: ${TABLE}.latest_close_date ;;
   }
 
+  dimension_group: lastest_indemnity_payment_date {
+    label: "Latest Indemnity Payment"
+    type: time
+    timeframes: [date,month,year]
+    sql: ${TABLE}.lastest_indemnity_payment_date ;;
+  }
 
   dimension: days_open {
     label: "Days Open to Close"
@@ -131,6 +154,24 @@ view: dt_claim_feature_activity {
     sql: case when ${dim_days_open_cumulative} IS NULL
       then NULL
       else ${dim_days_open_cumulative} end ;;
+    value_format: "0"
+  }
+
+  dimension: dim_days_to_last_indemnity_payment {
+    hidden: yes
+    label: "Days First Open to Last Close"
+    type: number
+    sql: ${TABLE}.days_to_last_indemnity_payment ;;
+  }
+
+  dimension : days_to_last_indemnity_payment {
+    type: tier
+    label: "Latest Indemnity  Within (Tiers)"
+    tiers: [31,61,91,181,366]
+    style: integer
+    sql: case when ${dim_days_to_last_indemnity_payment} IS NULL
+      then NULL
+      else ${dim_days_to_last_indemnity_payment} end ;;
     value_format: "0"
   }
 
