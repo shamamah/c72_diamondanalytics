@@ -10,6 +10,7 @@ view: claim_catastrophe {
 
 
   dimension: claimcatastrophe_id {
+    primary_key: yes
     type: number
     hidden: yes
     sql: ${TABLE}.claimcatastrophe_id ;;

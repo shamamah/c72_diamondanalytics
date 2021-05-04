@@ -543,6 +543,14 @@ explore: claim_control {
           relationship: one_to_one
         }
 
+        #SH 2021-05-04  Added per Rod and WaterStreet request to add States and Types
+        join: dt_catastrophe_states_types {
+          view_label: "Claim CAT"
+          type: left_outer
+          sql_on: ${claim_catastrophe.claimcatastrophe_id} = ${dt_catastrophe_states_types.claimcatastrophe_id} ;;
+          relationship: one_to_one
+        }
+
         join:  policy {
           view_label: "Policy"
           type: left_outer
