@@ -31,9 +31,10 @@ view: v_claim_detail_transaction {
     sql: ${TABLE}.claimfeature_num ;;
   }
 
+  #SH 2021-05-26 Made this dimension visible to allow seeing rows of duplicate data.  Used for uniqueness.
   dimension: claimtransaction_num {
+    label: "Sequential Number"
     type: number
-    hidden: yes
     sql: ${TABLE}.claimtransaction_num ;;
   }
 
@@ -84,7 +85,7 @@ view: v_claim_detail_transaction {
     label: "Check Amount"
     type: number
     hidden: no
-    sql: ${TABLE}.amount ;;
+    sql:  case when left(${is_credit},1) = 'Y' then NULL else ${TABLE}.amount end ;;
     value_format_name: usd
   }
 
@@ -134,42 +135,63 @@ view: v_claim_detail_transaction {
     sql: ${TABLE}.pay_type ;;
   }
 
-  # dimension: adjust_indemnity_reserve {
-  #   type: number
-  #   sql: ${TABLE}.adjust_indemnity_reserve ;;
-  #   value_format: "$#,##0.00"
-  # }
 
-  # dimension: adjust_indemnity_paid {
-  #   type: number
-  #   sql: ${TABLE}.adjust_indemnity_paid ;;
-  #   value_format: "$#,##0.00"
-  # }
+  dimension: adjust_indemnity_reserve {
+    hidden: yes
+    type: number
+    sql: ${TABLE}.adjust_indemnity_reserve ;;
+  }
 
-  # dimension: adjust_alae_reserve {
-  #   type: number
-  #   sql: ${TABLE}.adjust_alae_reserve ;;
-  #   value_format: "$#,##0.00"
-  # }
+  dimension: adjust_indemnity_paid {
+    hidden: yes
+    type: number
+    sql: ${TABLE}.adjust_indemnity_paid ;;
+  }
 
-  # dimension: adjust_alae_paid {
-  #   type: number
-  #   sql: ${TABLE}.adjust_alae_paid ;;
-  #   value_format: "$#,##0.00"
-  # }
+  dimension: adjust_alae_reserve {
+    hidden: yes
+    type: number
+    sql: ${TABLE}.adjust_alae_reserve ;;
+  }
 
-  # dimension: adjust_expense_reserve {
-  #   type: number
-  #   sql: ${TABLE}.adjust_expense_reserve ;;
-  #   value_format: "$#,##0.00"
-  # }
+  dimension: adjust_alae_paid {
+    hidden: yes
+    type: number
+    sql: ${TABLE}.adjust_alae_paid ;;
+  }
 
-  # dimension: adjust_expense_paid {
-  #   type: number
-  #   #value_format_name: id
-  #   sql: ${TABLE}.adjust_expense_paid ;;
-  #   value_format: "$#,##0.00"
-  # }
+  dimension: adjust_expense_reserve {
+    hidden: yes
+    type: number
+    sql: ${TABLE}.adjust_expense_reserve ;;
+  }
+
+  dimension: adjust_expense_paid {
+    hidden: yes
+    type: number
+    #value_format_name: id
+    sql: ${TABLE}.adjust_expense_paid ;;
+  }
+
+  dimension: is_credit {
+    type:  string
+    sql: case when (
+                (${adjust_indemnity_reserve} = 0 AND ${adjust_indemnity_paid} = 1)
+            OR  (${adjust_alae_reserve} = 0 AND ${adjust_alae_paid} = 1)
+            OR  (${adjust_expense_reserve} = 0 AND ${adjust_expense_paid} = 1)
+              ) then 'Y' else 'N' end ;;
+  }
+
+  dimension: credit_amount {
+    label: "Credit/Offset Amount"
+    type: number
+    sql: case when (
+                (${adjust_indemnity_reserve} = 0 AND ${adjust_indemnity_paid} = 1)
+            OR  (${adjust_alae_reserve} = 0 AND ${adjust_alae_paid} = 1)
+            OR  (${adjust_expense_reserve} = 0 AND ${adjust_expense_paid} = 1)
+              ) then ${TABLE}.amount*(-1) else NULL end ;;
+    value_format_name: usd
+  }
 
   # dimension: adjust_expense_recovery {
   #   type: number
@@ -334,7 +356,7 @@ view: v_claim_detail_transaction {
     label: "Check Amount"
     type: number
     hidden: yes
-    sql: ${dim_amount} ;;
+    sql: case when ${is_credit} = 'Yes' then 0 else ${dim_amount} end ;;
     value_format_name: usd
   }
 }
