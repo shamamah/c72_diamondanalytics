@@ -35,7 +35,9 @@ view: dt_date_latest_indemnity_payment {
       INNER JOIN dbo.CheckStatus  AS check_status ON v_claim_detail_transaction.checkstatus_id = check_status.checkstatus_id
 
       WHERE claim_transaction_category.dscr = 'Loss Payment'
-        and v_claim_detail_transaction.check_number between 1 and 99999999
+        --SH 2021-09-20  TT 322933  Changed condition to accommodate for non-numeric check numbers
+        --and v_claim_detail_transaction.check_number between 1 and 99999999
+        and ISNULL(v_claim_detail_transaction.check_number,'') <> ''
         and check_status.[description] <> 'Void'
 
       GROUP BY claim_control.claimcontrol_id

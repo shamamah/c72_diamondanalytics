@@ -310,7 +310,9 @@ view: v_claim_detail_transaction {
     label: "Check Number"
     type: number
     #sql: case when ${TABLE}.check_number between ;;
-    sql: (case when (${TABLE}.check_number between 1 and 99999999) then ${TABLE}.check_number else null end) ;;
+    #SH 2021-09-20  TT 322933 Encountering an error when a claim number contains a hyphen
+    #sql: (case when (${TABLE}.check_number between 1 and 99999999) then ${TABLE}.check_number else null end) ;;
+    sql: (case when (${TABLE}.check_number IS NOT NULL) then ${TABLE}.check_number else NULL end) ;;
     value_format_name: id
   }
 
